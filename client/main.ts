@@ -54,10 +54,10 @@ export class AppMain extends LitElement {
     private tokensInput: string = '1000';
 
     @state()
-    private storageInput: string = '100MB';
+    private storageInput: string = '100';
 
     @state()
-    private seatsInput: string = '1';
+    private currentSeats: number = 0;
 
 
     static get styles(): CSSResult {
@@ -70,7 +70,7 @@ export class AppMain extends LitElement {
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
@@ -147,43 +147,185 @@ export class AppMain extends LitElement {
         .usage-section h2 {
             font-size: 1.25rem;
             font-weight: 600;
-            margin: 0 0 1rem 0;
+            margin: 0 0 1.5rem 0;
         }
 
-        .usage-controls {
+        .usage-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .usage-column {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
 
-        .usage-row {
+        .column-header {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #000000;
+        }
+
+        /* Chat Column */
+        .chat-box {
+            background: #f5f5f5;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            padding: 2rem 1rem;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.875rem;
+            color: #999999;
+            font-style: italic;
             display: flex;
             align-items: center;
+            justify-content: center;
+        }
+
+        .chat-input-row {
+            display: flex;
             gap: 0.5rem;
         }
 
-        .usage-row input {
-            flex: 0 0 150px;
+        .chat-input {
+            flex: 1;
             padding: 0.5rem;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #d0d0d0;
             border-radius: 4px;
-            font-size: 1rem;
+            font-size: 0.875rem;
         }
 
-        .usage-row button {
-            flex: 1;
+        .send-button {
             padding: 0.5rem 1rem;
-            background: #272727;
+            background: #000000;
             color: #ffffff;
             border: none;
             border-radius: 4px;
-            font-size: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .send-button:hover {
+            opacity: 0.8;
+        }
+
+        /* Storage Column */
+        .upload-area {
+            background: #f5f5f5;
+            border: 2px dashed #d0d0d0;
+            border-radius: 6px;
+            padding: 2rem 1rem;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #999999;
+            font-size: 0.875rem;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.4;
+        }
+
+        .storage-input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .storage-input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .upload-button {
+            padding: 0.5rem 1rem;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .upload-button:hover {
+            opacity: 0.8;
+        }
+
+        /* Seats Column */
+        .seats-display {
+            background: #f5f5f5;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            padding: 2rem 1rem;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .seats-count {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .seats-label {
+            font-size: 0.875rem;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .seats-buttons {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .seat-button {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.5rem;
+            font-weight: 600;
             cursor: pointer;
             transition: opacity 0.2s;
         }
 
-        .usage-row button:hover {
+        .seat-button:hover {
             opacity: 0.8;
+        }
+
+        .seat-button:active {
+            transform: scale(0.98);
         }
 
         .message {
@@ -207,7 +349,7 @@ export class AppMain extends LitElement {
 
         .pricing-container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -281,6 +423,12 @@ export class AppMain extends LitElement {
         .dialog-actions button:hover {
             opacity: 0.8;
         }
+
+        @media (max-width: 1100px) {
+            .usage-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         `;
     }
 
@@ -288,6 +436,17 @@ export class AppMain extends LitElement {
     connectedCallback(): void {
         super.connectedCallback();
         this.policy = limitrPolicy;
+        this.loadCurrentSeats();
+    }
+
+
+    private async loadCurrentSeats() {
+        // Get current seat count from policy
+        if (this.policy) {
+            this.currentSeats = await this.policy.value(this.customerId, 'seats') ?? 0;
+        } else {
+            this.currentSeats = 0;
+        }
     }
 
 
@@ -320,34 +479,60 @@ export class AppMain extends LitElement {
 
                 <!-- Usage Section -->
                 <div class="usage-section">
-                    <h2>Modify/Meter/Allow Usage (Limitr)</h2>
-                    <div class="usage-controls">
-                        <div class="usage-row">
-                            <input 
-                                type="number" 
-                                .value=${this.tokensInput}
-                                @input=${(e: Event) => this.tokensInput = (e.target as HTMLInputElement).value}
-                                placeholder="Amount"
-                            />
-                            <button @click=${this.chatTokens}>Spend AI Chat Tokens</button>
+                    <h2>App Features (Limitr Enforcement)</h2>
+                    <div class="usage-grid">
+                        <!-- AI Chat Column -->
+                        <div class="usage-column">
+                            <div class="column-header">💬 AI Chat</div>
+                            <div class="chat-box">
+                                Chat interface placeholder...
+                            </div>
+                            <div class="chat-input-row">
+                                <input 
+                                    type="number" 
+                                    class="chat-input"
+                                    .value=${this.tokensInput}
+                                    @input=${(e: Event) => this.tokensInput = (e.target as HTMLInputElement).value}
+                                    placeholder="Tokens to use"
+                                />
+                                <button class="send-button" @click=${this.chatTokens}>
+                                    Send Chat
+                                </button>
+                            </div>
                         </div>
-                        <div class="usage-row">
-                            <input 
-                                type="text" 
-                                .value=${this.storageInput}
-                                @input=${(e: Event) => this.storageInput = (e.target as HTMLInputElement).value}
-                                placeholder="Amount"
-                            />
-                            <button @click=${this.changeStorage}>Change Storage</button>
+
+                        <!-- File Storage Column -->
+                        <div class="usage-column">
+                            <div class="column-header">📁 File Storage</div>
+                            <div class="upload-area">
+                                <div class="upload-icon">📤</div>
+                                <div>Drag files here to upload</div>
+                            </div>
+                            <div class="storage-input-row">
+                                <input 
+                                    type="text" 
+                                    class="storage-input"
+                                    .value=${this.storageInput}
+                                    @input=${(e: Event) => this.storageInput = (e.target as HTMLInputElement).value}
+                                    placeholder="MB to add"
+                                />
+                                <button class="upload-button" @click=${this.changeStorage}>
+                                    Upload
+                                </button>
+                            </div>
                         </div>
-                        <div class="usage-row">
-                            <input 
-                                type="number" 
-                                .value=${this.seatsInput}
-                                @input=${(e: Event) => this.seatsInput = (e.target as HTMLInputElement).value}
-                                placeholder="Amount"
-                            />
-                            <button @click=${this.changeSeats}>Change Seat Quantity</button>
+
+                        <!-- Team Seats Column -->
+                        <div class="usage-column">
+                            <div class="column-header">👥 Team Seats</div>
+                            <div class="seats-display">
+                                <div class="seats-count">${this.currentSeats}</div>
+                                <div class="seats-label">Active Seats</div>
+                            </div>
+                            <div class="seats-buttons">
+                                <button class="seat-button" @click=${this.decrementSeat}>−</button>
+                                <button class="seat-button" @click=${this.incrementSeat}>+</button>
+                            </div>
                         </div>
                     </div>
 
@@ -437,17 +622,16 @@ export class AppMain extends LitElement {
 
         try {
             if (this.policy) {
-                // Create/lookup customer in Limitr, using our ID, the default plan, default user type, etc.
                 const defaultPlan = await this.policy.defaultPlan();
                 const defaultPlanName = !!defaultPlan ? defaultPlan.name as string ?? 'free' : 'free';
                 await this.policy.ensureCustomer(
-                    this.editId,                  // main ID for this customer
-                    defaultPlanName,              // default plan
-                    undefined,                    // default 'user' type
-                    this.editName,                // our label for this user
-                    undefined,                    // no refs (e.g. orgs, workspaces, etc)
-                    undefined,                    // no alternate ids (e.g. stripe customer id, etc.)
-                    { email: this.customerEmail } // general metadata for this customer (email recommended for Stripe creation)
+                    this.editId,
+                    defaultPlanName,
+                    undefined,
+                    this.editName,
+                    undefined,
+                    undefined,
+                    { email: this.customerEmail }
                 );
             }
 
@@ -456,6 +640,7 @@ export class AppMain extends LitElement {
             this.customerEmail = this.editEmail;
             this.showEditDialog = false;
             this.message = `Customer ${this.editName} set as current`;
+            await this.loadCurrentSeats();
         } catch (error) {
             this.message = `Error: ${error}`;
         }
@@ -468,11 +653,17 @@ export class AppMain extends LitElement {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     customerId: this.customerId,
-                    value: this.tokensInput
+                    value: parseInt(this.tokensInput)
                 })
             });
-            const data = await response.json();
-            this.message = `AI Chat Response - ${JSON.stringify(data)}`;
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.message = `Used ${this.tokensInput} AI tokens`;
+                } else {
+                    this.message = `Denied - AI token limit reached`;
+                }
+            }
         } catch (error) {
             this.message = `Error: ${error}`;
         }
@@ -488,25 +679,67 @@ export class AppMain extends LitElement {
                     value: this.storageInput
                 })
             });
-            const data = await response.json();
-            this.message = `Change Storage Usage Response - ${JSON.stringify(data)}`;
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.message = `Added ${this.storageInput} of storage`;
+                } else {
+                    this.message = `Denied - storage limit reached`;
+                }
+            }
         } catch (error) {
             this.message = `Error: ${error}`;
         }
     }
 
-    private async changeSeats() {
+    private async incrementSeat() {
         try {
             const response = await fetch('http://localhost:3000/api/change-seats', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     customerId: this.customerId,
-                    value: this.seatsInput
+                    value: 1
                 })
             });
-            const data = await response.json();
-            this.message = `Change Seat Quantity Response - ${JSON.stringify(data)}`;
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.currentSeats++;
+                    this.message = `Added 1 seat (now ${this.currentSeats} total)`;
+                } else {
+                    this.message = `Denied - seat limit reached`;
+                }
+            }
+        } catch (error) {
+            this.message = `Error: ${error}`;
+        }
+    }
+
+    private async decrementSeat() {
+        if (this.currentSeats <= 0) {
+            this.message = 'Cannot remove seats - already at 0';
+            return;
+        }
+        
+        try {
+            const response = await fetch('http://localhost:3000/api/change-seats', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    customerId: this.customerId,
+                    value: -1
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.currentSeats--;
+                    this.message = `Removed 1 seat (now ${this.currentSeats} total)`;
+                } else {
+                    this.message = `Denied - seat limit reached`;
+                }
+            }
         } catch (error) {
             this.message = `Error: ${error}`;
         }
