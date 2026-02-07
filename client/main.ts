@@ -1,5 +1,5 @@
 import { Limitr } from '@formata/limitr';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, CSSResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { initStof } from '@formata/stof';
 import '@formata/limitr-ui';
@@ -60,7 +60,8 @@ export class AppMain extends LitElement {
     private seatsInput: string = '1';
 
 
-    static styles = css`
+    static get styles(): CSSResult {
+        return css`
         :host {
             display: block;
             min-height: 100vh;
@@ -280,7 +281,8 @@ export class AppMain extends LitElement {
         .dialog-actions button:hover {
             opacity: 0.8;
         }
-    `;
+        `;
+    }
 
 
     connectedCallback(): void {
