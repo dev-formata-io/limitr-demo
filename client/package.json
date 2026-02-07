@@ -1,0 +1,20 @@
+{
+  "name": "limitr-demo-web",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Limitr demo web app",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@formata/limitr": "^0.5.18",
+    "@formata/limitr-ui": "^0.1.4",
+    "lit": "^3.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0"
+  }
+}

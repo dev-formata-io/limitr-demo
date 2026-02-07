@@ -1,0 +1,15 @@
+{
+  "name": "limitr-demo-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Minimal Express server demo for Limitr",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@formata/limitr": "^0.5.18",
+    "cors": "^2.8.6",
+    "express": "^4.18.2"
+  }
+}
