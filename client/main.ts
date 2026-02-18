@@ -7,6 +7,11 @@ import '@formata/limitr-ui';
 import stofWasm from '@formata/stof/wasm?url';
 await initStof(stofWasm);
 
+type ChatMessage = {
+    role: 'user' | 'ai';
+    text: string;
+};
+
 @customElement('app-main')
 export class AppMain extends LitElement {
     @property({ type: Object })
@@ -19,9 +24,9 @@ export class AppMain extends LitElement {
     private selectedTokens: number = 1000;
 
     @state()
-    private chatMessages: string[] = [
-        '👋 Welcome to the Mock AI demo.',
-        'Select token usage below to simulate an AI response.'
+    private chatMessages: ChatMessage[] = [
+        { role: 'ai', text: '👋 Welcome to the Mock AI demo.' },
+        { role: 'ai', text: 'Select token usage below to simulate an AI response.' }
     ];
 
     static get styles(): CSSResult {
@@ -50,11 +55,12 @@ export class AppMain extends LitElement {
             margin-bottom: 3rem;
         }
 
+        /* Chat window: looks like a messaging app */
         .chat-window {
-            background: #f5f5f5;
+            background: #f9f9f9;
             border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1rem;
+            border-radius: 12px;
+            padding: 1.25rem;
             height: 350px;
             overflow-y: auto;
             display: flex;
@@ -62,14 +68,66 @@ export class AppMain extends LitElement {
             gap: 0.75rem;
         }
 
-        .chat-message {
-            background: #ffffff;
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            border: 1px solid #e5e5e5;
-            font-size: 0.9rem;
+        /* Each row aligns the bubble + avatar */
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
         }
 
+        .message-row.user {
+            flex-direction: row-reverse;
+        }
+
+        /* Small avatar circle */
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .avatar.ai {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .avatar.user {
+            background: #e0e0e0;
+            color: #000000;
+        }
+
+        /* The bubble itself */
+        .bubble {
+            max-width: 70%;
+            padding: 0.6rem 0.9rem;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .message-row.ai .bubble {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+            color: #000000;
+        }
+
+        .message-row.user .bubble {
+            background: #000000;
+            border: 1px solid #000000;
+            border-bottom-right-radius: 4px;
+            color: #ffffff;
+        }
+
+        /* Controls below the chat */
         .controls {
             display: flex;
             gap: 0.75rem;
@@ -103,10 +161,23 @@ export class AppMain extends LitElement {
         `;
     }
 
+    updated(changedProps: Map<string, unknown>) {
+        if (changedProps.has('chatMessages')) {
+            this.scrollToBottom();
+        }
+    }
+
+    private scrollToBottom() {
+        const chatWindow = this.shadowRoot?.querySelector('.chat-window');
+        if (chatWindow) {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    }
+
     async connectedCallback() {
         super.connectedCallback();
-        this.policy = await Limitr.cloud({ token: 'lmlive_W80FjPoWoiUWY3EGhojcJjAQQSaJ' });
-        await this.policy?.addCloudCustomer(this.customerId);
+        /* this.policy = await Limitr.cloud({ token: 'lmlive_W80FjPoWoiUWY3EGhojcJjAQQSaJ' });
+        await this.policy?.addCloudCustomer(this.customerId); */
         this.requestUpdate();
     }
 
@@ -116,7 +187,12 @@ export class AppMain extends LitElement {
                 <h1>Limitr AI Token Demo</h1>
                 <div class="chat-section">
                     <div class="chat-window">
-                        ${this.chatMessages.map(msg => html`<div class="chat-message">${msg}</div>`)}
+                        ${this.chatMessages.map(msg => html`
+                            <div class="message-row ${msg.role}">
+                                <div class="avatar ${msg.role}">${msg.role === 'ai' ? 'AI' : 'You'}</div>
+                                <div class="bubble">${msg.text}</div>
+                            </div>
+                        `)}
                     </div>
                     <div class="controls">
                         <select @change=${(e: Event) => this.selectedTokens = parseInt((e.target as HTMLSelectElement).value)}>
@@ -132,20 +208,26 @@ export class AppMain extends LitElement {
                 </div>
 
                 <div class="pricing-section">
-                    <limitr-current-plan
+                    <!-- <limitr-current-plan
                         .policy=${this.policy}
                         .customerId=${this.customerId}
                         ?showStripeInfo=${false}
                         ?cancelImmediately=${true}
                         ?requestStripeInvoices=${false}
                         ?requestStripePortalUrl=${false}
-                    ></limitr-current-plan>
+                    ></limitr-current-plan> -->
                 </div>
             </div>
         `;
     }
 
     private async sendTokens() {
+        // Immediately show the user's "message" (the token count they picked)
+        this.chatMessages = [
+            ...this.chatMessages,
+            { role: 'user', text: `Send ${this.selectedTokens} tokens` }
+        ];
+
         try {
             const response = await fetch('http://localhost:3000/api/ai-chat', {
                 method: 'POST',
@@ -158,19 +240,19 @@ export class AppMain extends LitElement {
             if (!response.ok) {
                 this.chatMessages = [
                     ...this.chatMessages,
-                    'Network error contacting server.'
+                    { role: 'ai', text: 'Network error contacting server.' }
                 ];
             } else {
                 const data = await response.json();
                 this.chatMessages = [
                     ...this.chatMessages,
-                    data.message
+                    { role: 'ai', text: data.message }
                 ];
             }
         } catch (error) {
             this.chatMessages = [
                 ...this.chatMessages,
-                `Error: ${error}`
+                { role: 'ai', text: `Error: ${error}` }
             ];
         }
     }
