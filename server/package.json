@@ -8,7 +8,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "@formata/limitr": "^0.5.18",
+    "@formata/limitr": "^0.5.23",
     "cors": "^2.8.6",
     "express": "^4.18.2"
   }
