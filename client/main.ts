@@ -1,5 +1,5 @@
 import { Limitr } from '@formata/limitr';
-import { LitElement, html, css, CSSResult } from 'lit';
+import { LitElement, html, css, CSSResult, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { initStof } from '@formata/stof';
 import '@formata/limitr-ui';
@@ -22,6 +22,9 @@ export class AppMain extends LitElement {
 
     @state()
     private selectedTokens: number = 1000;
+
+    @state()
+    private showPricingTables: boolean = false;
 
     @state()
     private chatMessages: ChatMessage[] = [
@@ -176,8 +179,11 @@ export class AppMain extends LitElement {
 
     async connectedCallback() {
         super.connectedCallback();
-        /* this.policy = await Limitr.cloud({ token: 'lmlive_W80FjPoWoiUWY3EGhojcJjAQQSaJ' });
-        await this.policy?.addCloudCustomer(this.customerId); */
+        this.policy = await Limitr.cloud({ token: 'lmlive_W80FjPoWoiUWY3EGhojcJjAQQSaJ' });
+        await this.policy?.addCloudCustomer(this.customerId);
+        if (this.policy && !await this.policy.allow(this.customerId, 'unlimited')) {
+            this.showPricingTables = true;
+        }
         this.requestUpdate();
     }
 
@@ -208,14 +214,14 @@ export class AppMain extends LitElement {
                 </div>
 
                 <div class="pricing-section">
-                    <!-- <limitr-current-plan
+                    ${this.showPricingTables ? html`<limitr-current-plan
                         .policy=${this.policy}
                         .customerId=${this.customerId}
                         ?showStripeInfo=${false}
                         ?cancelImmediately=${true}
                         ?requestStripeInvoices=${false}
                         ?requestStripePortalUrl=${false}
-                    ></limitr-current-plan> -->
+                    ></limitr-current-plan>` : nothing }
                 </div>
             </div>
         `;
