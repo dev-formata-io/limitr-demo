@@ -48,21 +48,45 @@ export class AppMain extends LitElement {
             padding: 2rem;
         }
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 2rem;
+        .chat-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .chat-header-label {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #ffffff;
+            background: #000000;
+            padding: 0.2rem 0.55rem;
+            border-radius: 3px;
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem 0;
+            line-height: 1.2;
+        }
+
+        .chat-header p {
+            font-size: 0.85rem;
+            color: #666666;
+            margin: 0;
         }
 
         .chat-section {
             margin-bottom: 3rem;
         }
 
-        /* Chat window: looks like a messaging app */
+        /* Chat window */
         .chat-window {
             background: #f9f9f9;
             border: 1px solid #e0e0e0;
-            border-radius: 12px;
+            border-radius: 12px 12px 0 0;
             padding: 1.25rem;
             height: 350px;
             overflow-y: auto;
@@ -130,28 +154,64 @@ export class AppMain extends LitElement {
             color: #ffffff;
         }
 
-        /* Controls below the chat */
-        .controls {
+        /* Composer bar — sits flush below the chat window */
+        .composer {
             display: flex;
-            gap: 0.75rem;
-            margin-top: 1rem;
+            align-items: center;
+            gap: 0;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .composer-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: #aaaaaa;
+            border: none;
+            outline: none;
+            background: transparent;
+            cursor: default;
+            font-family: system-ui, sans-serif;
+        }
+
+        .composer-divider {
+            width: 1px;
+            height: 1.5rem;
+            background: #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .composer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
         }
 
         select {
-            padding: 0.5rem;
+            padding: 0.4rem 0.5rem;
             border-radius: 4px;
             border: 1px solid #d0d0d0;
-            font-size: 0.9rem;
+            font-size: 0.825rem;
+            background: #f5f5f5;
+            color: #000000;
+            cursor: pointer;
         }
 
         button {
-            padding: 0.5rem 1.25rem;
+            padding: 0.45rem 1.1rem;
             background: #000000;
             color: #ffffff;
             border: none;
             border-radius: 4px;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.825rem;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         button:hover {
@@ -190,7 +250,12 @@ export class AppMain extends LitElement {
     render() {
         return html`
             <div class="container">
-                <h1>Limitr AI Token Demo</h1>
+                <div class="chat-header">
+                    <span class="chat-header-label">Mock Demo</span>
+                    <h1>AI Chat Feature</h1>
+                    <p>Simulated AI responses — select a token amount and hit Send to try it out.</p>
+                </div>
+
                 <div class="chat-section">
                     <div class="chat-window">
                         ${this.chatMessages.map(msg => html`
@@ -200,16 +265,24 @@ export class AppMain extends LitElement {
                             </div>
                         `)}
                     </div>
-                    <div class="controls">
-                        <select @change=${(e: Event) => this.selectedTokens = parseInt((e.target as HTMLSelectElement).value)}>
-                            <option value="1000">1000 tokens</option>
-                            <option value="2000">2000 tokens</option>
-                            <option value="5000">5000 tokens</option>
-                            <option value="10000">10000 tokens</option>
-                        </select>
-                        <button @click=${this.sendTokens}>
-                            Send
-                        </button>
+
+                    <div class="composer">
+                        <input
+                            class="composer-input"
+                            type="text"
+                            placeholder="Type a message... (simulated)"
+                            disabled
+                        />
+                        <div class="composer-divider"></div>
+                        <div class="composer-controls">
+                            <select @change=${(e: Event) => this.selectedTokens = parseInt((e.target as HTMLSelectElement).value)}>
+                                <option value="1000">1,000 tokens</option>
+                                <option value="2000">2,000 tokens</option>
+                                <option value="5000">5,000 tokens</option>
+                                <option value="10000">10,000 tokens</option>
+                            </select>
+                            <button @click=${this.sendTokens}>Send</button>
+                        </div>
                     </div>
                 </div>
 
