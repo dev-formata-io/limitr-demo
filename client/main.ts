@@ -240,11 +240,24 @@ export class AppMain extends LitElement {
     async connectedCallback() {
         super.connectedCallback();
         this.policy = await Limitr.cloud({ token: 'lmlive_W80FjPoWoiUWY3EGhojcJjAQQSaJ' });
-        await this.policy?.addCloudCustomer(this.customerId);
-        if (this.policy && !await this.policy.allow(this.customerId, 'unlimited')) {
-            this.showPricingTables = true;
+        if (this.policy) {
+            await this.policy.addCloudCustomer(this.customerId);
+            this.showPricingTables = !await this.policy.allow(this.customerId, 'unlimited');
+            this.policy.addHandler('internal_update_handler', (key: string, _) => {
+                if (key.includes('internal')) { // when policies or customers are updated from cloud
+                    (async () => {
+                        if (this.policy) this.showPricingTables = !await this.policy.allow(this.customerId, 'unlimited');
+                        this.requestUpdate();
+                    })();
+                }
+            });
         }
         this.requestUpdate();
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        if (this.policy) this.policy.removeHandler('internal_update_handler');
     }
 
     render() {
