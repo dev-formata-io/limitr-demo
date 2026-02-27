@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@formata/limitr": "^0.5.23",
+    "@formata/limitr": "^0.5.25",
     "@formata/limitr-ui": "^0.1.7",
     "lit": "^3.1.0"
   },
